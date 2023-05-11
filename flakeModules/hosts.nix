@@ -1,10 +1,19 @@
 {
   self,
   lib,
-  nixpkgs,
-  home-manager,
+  inputs,
   ...
 }: let
+  inherit
+    (inputs)
+    nixpkgs
+    home-manager
+    nix-doom-emacs
+    nixos-hardware
+    nixos-wsl
+    emacs-overlay
+    rust-overlay
+    ;
   users = {pkgs, ...}: {
     users.users.root.hashedPassword = "*";
     users.users.atriw = {
@@ -21,7 +30,15 @@
   };
   hmUsers = {...}: {
     home-manager.users.atriw = {
-      imports = [../hmModules/profiles/default.nix];
+      imports = [
+        nix-doom-emacs.hmModule
+        ../hmModules/profiles/default.nix
+      ];
+      nixpkgs.overlays = [
+        emacs-overlay.overlays.default
+        rust-overlay.overlays.default
+        self.overlays.default
+      ];
       home.stateVersion = "22.11";
       home.sessionVariables = {
         EDITOR = "nvim";
@@ -31,20 +48,42 @@
       programs.git.userEmail = "875241499@qq.com";
     };
   };
-  sharedModules = [users hmUsers home-manager.nixosModules.default];
-  # TODO: Maybe flake-parts can optimize this.
+  wslUsers = {...}: {
+    wsl.defaultUser = "atriw";
+  };
+  sharedModules = [
+    home-manager.nixosModules.default
+    users
+    hmUsers
+    self.nixosModules.nixos
+  ];
   system = "x86_64-linux";
-  pkgs = nixpkgs.legacyPackages.${system};
 in {
   flake = {
     nixosConfigurations = {
-      matrix = pkgs.lib.nixosSystem {
+      matrix = nixpkgs.lib.nixosSystem {
         inherit system;
-        modules = sharedModules ++ [../hosts/matrix];
+        modules =
+          sharedModules
+          ++ [
+            nixos-wsl.nixosModules.wsl
+            wslUsers
+            ../hosts/matrix
+          ];
       };
-      enigma = pkgs.lib.nixosSystem {
+      enigma = nixpkgs.lib.nixosSystem {
         inherit system;
-        modules = sharedModules ++ [../hosts/enigma];
+        modules =
+          sharedModules
+          ++ [
+            nixos-hardware.nixosModules.common-cpu-intel
+            nixos-hardware.nixosModules.common-pc
+            nixos-hardware.nixosModules.common-pc-laptop
+            nixos-hardware.nixosModules.common-pc-laptop-ssd
+            ../hosts/enigma
+
+            self.nixosModules.desktop
+          ];
       };
     };
   };
