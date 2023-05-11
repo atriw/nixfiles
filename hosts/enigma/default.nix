@@ -1,6 +1,8 @@
 {...}: {
   imports = [./hardware-configuration.nix];
 
+  networking.hostName = "enigma";
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
