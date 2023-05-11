@@ -57,6 +57,7 @@
     home-manager.nixosModules.default
     users
     self.nixosModules.nixos
+    self.nixosModules.nix-config
   ];
   system = "x86_64-linux";
 in {
