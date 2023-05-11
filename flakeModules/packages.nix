@@ -16,7 +16,11 @@
   }: {
     overlayAttrs = {
       inherit (config.packages) chat;
-      inherit (inputs'.latest.legacyPackages) neovim-unwrapped;
+      inherit
+        (inputs'.latest.legacyPackages)
+        neovim-unwrapped
+        catppuccin-gtk
+        ;
     };
     packages.chat = pkgs.callPackage ../packages/chat {};
   };

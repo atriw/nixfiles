@@ -28,12 +28,14 @@
       password = "nixos";
     };
   };
-  hmUsers = {...}: {
+  hmUsers = withDesktop: {...}: {
     home-manager.users.atriw = {
-      imports = [
-        nix-doom-emacs.hmModule
-        ../hmModules/profiles/default.nix
-      ];
+      imports =
+        [
+          nix-doom-emacs.hmModule
+          ../hmModules/profiles/default.nix
+        ]
+        ++ lib.optional withDesktop ../hmModules/profiles/desktop.nix;
       nixpkgs.overlays = [
         emacs-overlay.overlays.default
         rust-overlay.overlays.default
@@ -54,7 +56,6 @@
   sharedModules = [
     home-manager.nixosModules.default
     users
-    hmUsers
     self.nixosModules.nixos
   ];
   system = "x86_64-linux";
@@ -68,6 +69,7 @@ in {
           ++ [
             nixos-wsl.nixosModules.wsl
             wslUsers
+            (hmUsers false)
             ../hosts/matrix
           ];
       };
@@ -80,6 +82,7 @@ in {
             nixos-hardware.nixosModules.common-pc
             nixos-hardware.nixosModules.common-pc-laptop
             nixos-hardware.nixosModules.common-pc-laptop-ssd
+            (hmUsers true)
             ../hosts/enigma
 
             self.nixosModules.desktop
