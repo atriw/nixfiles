@@ -5,6 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
+
+    home-manager.url = "github:nix-community/home-manager";
   };
 
   outputs = inputs @ {flake-parts, ...}:
@@ -15,6 +17,10 @@
         # 2. Add foo as a parameter to the outputs function
         # 3. Add here: foo.flakeModule
         ./flakeModules/example-flake-module.nix
+        ./flakeModules/packages.nix
+        ./flakeModules/modules.nix
+        ./flakeModules/hosts.nix
+        ./flakeModules/home-configurations.nix
       ];
       systems = ["x86_64-linux"];
       perSystem = {

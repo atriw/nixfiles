@@ -1,0 +1,441 @@
+#!/usr/bin/env cached-nix-shell
+#! nix-shell -p "python3.withPackages(ps: with ps; [typer openai toml] ++ typer.optional-dependencies.all)" -i "python"
+#! nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz
+
+from typing import List, TypedDict, Literal, Optional, Any, Callable
+from collections.abc import Iterable
+import sys
+from pathlib import Path
+import pickle
+import logging
+from enum import Enum
+from concurrent import futures
+import textwrap
+from dataclasses import dataclass
+from itertools import chain
+
+import typer
+import openai
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.markdown import Markdown
+from rich.panel import Panel
+from rich.logging import RichHandler
+import toml
+
+APP_NAME = "chatty"
+LAST_SESSION = "last_session.pickle"
+
+app_dir = typer.get_app_dir(APP_NAME)
+
+run_dir: Path = None
+
+console = Console()
+
+error_console = Console(stderr=True)
+
+log = logging.getLogger("rich")
+
+
+Message = TypedDict(
+    "Message",
+    {
+        "role": Literal["user", "system", "assistant"],
+        "content": str,
+    },
+)
+
+
+def user_message(msg: str) -> Message:
+    return {
+        "role": "user",
+        "content": msg,
+    }
+
+
+def system_message(msg: str) -> Message:
+    return {
+        "role": "system",
+        "content": msg,
+    }
+
+
+def assistant_message(msg: str) -> Message:
+    return {
+        "role": "assistant",
+        "content": msg,
+    }
+
+
+def chat(model: str, messages: Iterable[Message], temperature: float) -> str:
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=list(messages),
+        temperature=temperature,
+    )
+    return response.choices[0].message.content
+
+
+@dataclass
+class Messages:
+    query: Optional[Message]
+    chunks: Optional[List[Message]]
+    session: Optional[List[Message]] = None
+    system: Optional[List[Message]] = None
+
+    def is_valid(self) -> bool:
+        return self.query or self.chunks
+
+    def get_tasks(self) -> (Iterable[Iterable[Message]], int):
+        if not self.chunks:
+            return ([self.get_prompts()], 1)
+        return (
+            (chain(self.get_prompts(), [chunk]) for chunk in self.chunks),
+            len(self.chunks),
+        )
+
+    def get_prompts(self, with_session=True) -> Iterable[Message]:
+        iters = []
+        if self.session and with_session:
+            iters.append(self.session)
+        if self.system:
+            iters.append(self.system)
+        if self.query:
+            iters.append([self.query])
+        return chain(*iters)
+
+
+def get_query(q: List[str]) -> Optional[Message]:
+    if not q:
+        return None
+    return user_message(" ".join(q))
+
+
+def get_chunks(chunk_lines: int) -> Optional[List[Message]]:
+    if sys.stdin.isatty():
+        return None
+    raw = sys.stdin.read()
+    if not raw:
+        return None
+    if chunk_lines == 0:
+        return [user_message(raw)]
+    lines = raw.splitlines(True)
+    n = chunk_lines
+    return [
+        user_message("".join(lines[i * n : (i + 1) * n]))
+        for i in range((len(lines) + n - 1) // n)
+    ]
+
+
+def get_system_prompts(paths: Optional[List[Path]]) -> Optional[List[Message]]:
+    prompts = []
+    if not paths:
+        return prompts
+    for p in paths:
+        vp = find_valid(p, ["prompts"], [".txt"])
+        if not vp:
+            log.warn(f"Cannot find system prompt: {p}")
+            continue
+        with vp.open("r") as f:
+            msg = f.read()
+            prompts.append(system_message(msg))
+    return prompts
+
+
+def find_valid(
+    p: Path, search_subdir: List[str], support_suffix: List[str]
+) -> Optional[Path]:
+    if p.is_absolute():
+        return p if p.is_file() else None
+    base_search_path = [Path("."), Path(app_dir)]
+    if run_dir:
+        base_search_path.append(run_dir)
+    search_path = base_search_path + [
+        base.joinpath(sub) for base in base_search_path for sub in search_subdir
+    ]
+
+    for sp in search_path:
+        pp = sp.joinpath(p)
+        if pp.is_file():
+            return pp
+        for suffix in support_suffix:
+            pp = pp.with_suffix(suffix)
+            if pp.is_file():
+                return pp
+    return None
+
+
+def try_load_session(p: Path) -> Optional[List[Message]]:
+    if not p.is_file():
+        log.warning(f"Cannot read {p}")
+        return None
+    try:
+        with p.open("rb") as f:
+            return pickle.load(f)
+    except Exception as e:
+        log.warning(f"Failed to load session: {e}")
+
+
+def try_write_session(p: Path, messages: List[Message]):
+    if p.is_dir():
+        log.warning(f"Cannot write to dir: {p}")
+        return
+    try:
+        p.parent.mkdir(exist_ok=True, parents=True)
+        with p.open("wb") as f:
+            pickle.dump(messages, f)
+    except Exception as e:
+        log.warning(f"Failed to write session: {e}")
+
+
+class LogLevel(str, Enum):
+    CRITICAL = "CRITICAL"
+    ERROR = "ERROR"
+    WARNING = "WARNING"
+    INFO = "INFO"
+    DEBUG = "DEBUG"
+    NOTSET = "NOTSET"
+
+
+class Model(str, Enum):
+    GPT35 = "gpt-3.5-turbo"
+    GPT350301 = "gpt-3.5-turbo-0301"
+
+
+def log_level_callback(log_level: LogLevel):
+    logging.basicConfig(
+        level=log_level.value,
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[RichHandler(console=error_console, rich_tracebacks=True)],
+    )
+    return log_level
+
+
+def run_dir_callback(d: Optional[Path]):
+    if d:
+        global run_dir
+        run_dir = d
+    return d
+
+
+def profile_callback(ctx: typer.Context, profile: Optional[Path]):
+    if not profile:
+        return profile
+    log.info(f"Loading profile: {profile}")
+    vp = find_valid(profile, ["profiles"], [".toml"])
+    if not vp:
+        return profile
+    try:
+        with vp.open("r") as f:
+            conf = toml.load(f)
+            ctx.default_map = ctx.default_map or {}
+            ctx.default_map.update(conf)
+    except Exception as e:
+        raise typer.BadParameter(str(e))
+    return profile
+
+
+def main(
+    query: List[str] = typer.Argument(None, show_default=False),
+    openai_api_token: str = typer.Option(
+        ..., envvar="OPENAI_API_TOKEN", show_default=False
+    ),
+    model: Model = typer.Option(Model.GPT35),
+    temperature: float = typer.Option(0, max=1),
+    dry_run: bool = typer.Option(False, help="Run without calling API"),
+    chunk_lines: int = typer.Option(
+        0,
+        min=0,
+        help="""
+      Chunk piped inputs into multiple chunks by chunk_lines.
+      Send chunks with the same system and session prompts.
+      Collect and merge all results sequentially.
+      0 means no chunk.
+    """,
+        rich_help_panel="Chunk Options",
+    ),
+    cont: bool = typer.Option(
+        False,
+        "--continue",
+        "-c",
+        help="Continue last session",
+        rich_help_panel="Prompt Options",
+    ),
+    system_prompt_files: Optional[List[Path]] = typer.Option(
+        None,
+        "--system-prompt",
+        "-s",
+        help="Additional system prompts files",
+        show_default=False,
+        rich_help_panel="Prompt Options",
+    ),
+    session: Optional[Path] = typer.Option(
+        None,
+        help="Specify session file",
+        show_default=False,
+        rich_help_panel="Prompt Options",
+    ),
+    with_pager: bool = typer.Option(
+        False, help="Open results with pager", rich_help_panel="Display Options"
+    ),
+    with_panel: bool = typer.Option(
+        True, help="Wrap results in panel", rich_help_panel="Display Options"
+    ),
+    full_session: bool = typer.Option(
+        False,
+        help="Display full session, otherwise only current chat",
+        rich_help_panel="Display Options",
+    ),
+    only_result: bool = typer.Option(
+        False,
+        help="Only display chat result, no prompt",
+        rich_help_panel="Display Options",
+    ),
+    log_level: LogLevel = typer.Option(
+        LogLevel.INFO, callback=log_level_callback, is_eager=True
+    ),
+    run_dir: Optional[Path] = typer.Option(
+        None,
+        "-d",
+        "--run-dir",
+        help="Additional path to search prompts and profiles",
+        show_default=False,
+        callback=run_dir_callback,
+        is_eager=True,
+    ),
+    profile: Optional[Path] = typer.Option(
+        None,
+        "-p",
+        "--profile",
+        help="Read a toml profile as default options",
+        show_default=False,
+        callback=profile_callback,
+        is_eager=True,
+    ),
+):
+    openai.api_key = openai_api_token
+    last_session_path: Path = Path(app_dir) / LAST_SESSION
+    session_path = session or last_session_path
+    log.debug(
+        f"Session path is {session_path}, last session path is {last_session_path}"
+    )
+
+    messages = Messages(get_query(query), get_chunks(chunk_lines))
+
+    if not dry_run and not messages.is_valid():
+        console.print("No query provided")
+        raise typer.Exit(code=1)
+
+    if cont:
+        messages.session = try_load_session(session_path)
+    messages.system = get_system_prompts(system_prompt_files)
+
+    result: Optional[str] = None
+    if not dry_run:
+        result = process_chat(
+            messages, lambda messages: chat(model.value, messages, temperature)
+        )
+
+        short_result = textwrap.shorten(result, width=70)
+        log.debug(f"Short result: {short_result}")
+
+        # Chunks are too large to fit a session.
+        try_write_session(
+            last_session_path,
+            list(chain(messages.get_prompts(), [assistant_message(result)])),
+        )
+
+    def print_output():
+        renderables = format(messages, result, with_panel, full_session, only_result)
+        for obj in renderables:
+            console.print(obj)
+
+    if with_pager:
+        with console.pager(styles=True):
+            print_output()
+    else:
+        print_output()
+
+
+def process_chat(
+    messages: Messages,
+    chat_fn: Callable[[Iterable[Message]], str],
+) -> str:
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        transient=True,
+    ) as progress:
+        prompt_tasks, count = messages.get_tasks()
+        if count == 1:
+            progress.add_task(description="Asking ChatGPT...", total=None)
+            (prompts,) = prompt_tasks
+            return chat_fn(prompts)
+        with futures.ThreadPoolExecutor() as executor:
+            tasks = {
+                executor.submit(chat_fn, prompts): (
+                    i,
+                    progress.add_task(
+                        description=f"Asking ChatGPT... Chunk {i}", total=1
+                    ),
+                )
+                for i, prompts in enumerate(prompt_tasks)
+            }
+            results = {}
+            for task in futures.as_completed(tasks):
+                (i, rich_task) = tasks[task]
+                progress.update(rich_task, completed=1)
+                results[i] = task.result()
+            return "\n".join([results[i] for i in sorted(results.keys())])
+
+
+def format(
+    messages: Messages,
+    result: Optional[str],
+    with_panel: bool,
+    full_session: bool,
+    only_result: bool,
+) -> List[Any]:
+    def wrap(obj: Any, title: str, border_style: str) -> Any:
+        if not with_panel:
+            return obj
+        return Panel(obj, title=title, border_style=border_style)
+
+    result_rendered = (
+        wrap(Markdown(result), title="Answer", border_style="green") if result else ""
+    )
+    if only_result:
+        return [result_rendered]
+    outputs = []
+    styles = {
+        "system": ("System", "yellow"),
+        "user": ("Query", "blue"),
+        "assistant": ("Assistant", "red"),
+    }
+
+    prompts = messages.get_prompts(full_session)
+
+    for prompt in prompts:
+        (title, border_style) = styles[prompt["role"]]
+        outputs.append(wrap(prompt["content"], title, border_style))
+
+    if messages.chunks:
+        outputs.append(
+            wrap(
+                "\n".join(
+                    [
+                        f"Chunk {i}: " + textwrap.shorten(chunk["content"], width=70)
+                        for i, chunk in enumerate(messages.chunks)
+                    ]
+                ),
+                "Chunks",
+                "purple",
+            )
+        )
+    outputs.append(result_rendered)
+    return outputs
+
+
+if __name__ == "__main__":
+    typer.run(main)

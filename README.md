@@ -4,6 +4,7 @@ An attempt to nix all my configurations using [flake-parts](https://github.com/h
 
 ## File structure
 
+- `config`: My configurations
 - `modules`: NixOS modules
 - `packages`: My own packages
 - `hosts`: My `nixosConfigurations`
