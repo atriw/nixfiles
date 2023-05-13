@@ -17,6 +17,15 @@ in {
   config = mkIf cfg.enable {
     programs.doom-emacs = rec {
       enable = true;
+      emacsPackage = pkgs.emacs;
+      emacsPackagesOverlay = final: prev: {
+        vterm = prev.vterm.overrideAttrs (oldAttrs: {
+          cmakeFlags = [
+            "-DEMACS_SOURCE=${emacsPackage.src}"
+            "-DUSE_SYSTEM_LIBVTERM=ON"
+          ];
+        });
+      };
       doomPrivateDir = pkgs.callPackage "${configDir}/doom" {};
       doomPackageDir = let
         filteredPath = builtins.path {
