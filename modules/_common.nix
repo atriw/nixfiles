@@ -9,7 +9,7 @@
   configDir = ../config;
 in {
   # Sets binary caches which speeds up some builds
-  imports = [./cachix];
+  imports = [./_cachix];
 
   environment = {
     # Selection of sysadmin tools that can come in handy

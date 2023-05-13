@@ -14,6 +14,7 @@
     emacs-overlay
     rust-overlay
     ;
+  # Inline modules, move to modules later
   users = {pkgs, ...}: {
     users.users.root.hashedPassword = "*";
     users.users.atriw = {
@@ -46,6 +47,7 @@
         EDITOR = "nvim";
         SHELL = "zsh";
       };
+      xdg.enable = true;
       programs.git.userName = "atriw";
       programs.git.userEmail = "875241499@qq.com";
     };
@@ -53,11 +55,38 @@
   wslUsers = {...}: {
     wsl.defaultUser = "atriw";
   };
+  wslFcitx5Overlay = {
+    nixpkgs.overlays = [
+      (self: super: {
+        fcitx5-with-addons = super.fcitx5-with-addons.override {
+          fcitx5 = super.symlinkJoin {
+            name = "fcitx5-disable-wayland";
+            paths = [super.fcitx5];
+            buildInputs = [super.makeWrapper];
+            postBuild = ''
+              wrapProgram $out/bin/fcitx5 \
+                --add-flags "--disable=wayland"
+            '';
+            inherit (super.fcitx5) version meta;
+          };
+        };
+      })
+    ];
+  };
+  xdgAutoStart = {...}: {
+    # This option will generate systemd targets and services,
+    # but not start them automaticly.
+    #
+    # Still need to start them somewhere:
+    # /run/current-system/systemd/bin/systemctl start --user xdg-autostart-if-no-desktop-manager.target
+    services.xserver.desktopManager.runXdgAutostartIfNone = true;
+  };
   sharedModules = [
     home-manager.nixosModules.default
     users
     self.nixosModules.nixos
     self.nixosModules.nix-config
+    self.nixosModules.cn
   ];
   system = "x86_64-linux";
 in {
@@ -72,6 +101,10 @@ in {
             wslUsers
             (hmUsers false)
             ../hosts/matrix
+
+            self.nixosModules.wsl
+            wslFcitx5Overlay
+            xdgAutoStart
           ];
       };
       enigma = nixpkgs.lib.nixosSystem {

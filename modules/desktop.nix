@@ -135,11 +135,6 @@ in {
     fontDir.enable = true;
     fonts = with pkgs; [
       noto-fonts
-      noto-fonts-cjk-sans
-      noto-fonts-cjk-serif
-      source-han-sans
-      source-han-serif
-      sarasa-gothic
       inter
       source-sans-pro
       source-serif-pro
@@ -151,34 +146,17 @@ in {
       defaultFonts = {
         emoji = ["Noto Color Emoji"];
         monospace = [
-          "Noto Sans Mono CJK SC"
-          "Sarasa Mono SC"
           "Inter"
           "Iosevka"
           "FiraCode Nerd Font"
         ];
         sansSerif = [
-          "Noto Sans CJK SC"
-          "Source Han Sans SC"
           "Source Sans Pro"
         ];
         serif = [
-          "Noto Serif CJK SC"
-          "Source Han Serif SC"
           "Source Serif Pro"
         ];
       };
-    };
-  };
-
-  i18n = {
-    defaultLocale = "zh_CN.UTF-8";
-    inputMethod = {
-      enabled = "fcitx5";
-      fcitx5.addons = with pkgs; [
-        fcitx5-rime
-        fcitx5-chinese-addons
-      ];
     };
   };
 

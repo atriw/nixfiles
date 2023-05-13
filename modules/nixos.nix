@@ -5,7 +5,7 @@
   ...
 }: {
   imports = [
-    ./common.nix
+    ./_common.nix
   ];
 
   environment = {

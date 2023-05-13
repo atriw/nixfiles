@@ -5,7 +5,8 @@
 
   wsl = {
     enable = true;
-    startMenuLaunchers = true;
+    nativeSystemd = true;
+    startMenuLaunchers = false;
     wslConf = {
       interop.appendWindowsPath = false;
     };

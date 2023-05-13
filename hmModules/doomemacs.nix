@@ -43,8 +43,24 @@ in {
     };
 
     fonts.fontconfig.enable = true;
-    home.packages = with pkgs; [emacs-all-the-icons-fonts];
+    home.packages = with pkgs; [
+      emacs-all-the-icons-fonts
+      sqlite # for org-roam
+    ];
     services.emacs.enable = true;
     services.emacs.client.enable = true;
+
+    xdg.desktopEntries = {
+      "org-capture" = {
+        name = "Org Capture";
+        genericName = "Text Editor";
+        mimeType = ["text/english" "text/plain"];
+        exec = "org-capture";
+        icon = "emacs";
+        type = "Application";
+        terminal = false;
+        categories = ["Development" "TextEditor"];
+      };
+    };
   };
 }
