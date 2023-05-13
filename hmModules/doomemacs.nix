@@ -64,7 +64,7 @@ in {
         name = "Org Capture";
         genericName = "Text Editor";
         mimeType = ["text/english" "text/plain"];
-        exec = "org-capture";
+        exec = ''emacsclient --eval "(+org-capture/open-frame)"'';
         icon = "emacs";
         type = "Application";
         terminal = false;
