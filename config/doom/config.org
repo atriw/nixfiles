@@ -1,13 +1,13 @@
 #+TITLE: Doom Emacs Config
 #+PROPERTY: header-args:emacs-lisp :noweb yes :results none :tangle config.el
 
+Optimization, See: [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Lexical-Binding.html][Lexical Binding (GNU Emacs Lisp Reference Manual)]]
 #+begin_src emacs-lisp
 ;;; -*- lexical-binding: t; -*-
-
-
 #+end_src
 
 * UI
+Some preferences
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Source Code Pro for Powerline" :size 18))
 (setq doom-theme 'doom-one)
@@ -15,6 +15,24 @@
       doom-modeline-bar-width 5
       doom-modeline-persp-name t
       doom-modeline-persp-icon t)
+#+end_src
+
+No window decoration, better look on wslg
+#+begin_src emacs-lisp
+(push '(undecorated . t) default-frame-alist)
+#+end_src
+Make sure to write the following to ~.wslgconfig~ under Windows User Home, so undecorated
+windows can be moved by win+arrow:
+#+begin_example
+[system-distro-env]
+WSLG_USE_MSTSC=true
+WESTON_RDP_WINDOW_SNAP_ARRANGE=true
+WESTON_RDPRAIL_SHELL_LOCAL_MOVE=true
+#+end_example
+
+
+In case doom ui not correctly rendered
+#+begin_src emacs-lisp
 (add-hook! 'emacs-startup-hook #'doom-init-ui-h)
 #+end_src
 
@@ -25,6 +43,7 @@
 
 * Editor
 ** Parinfer
+Disable annoying prompts
 #+begin_src emacs-lisp
 (setq parinfer-rust-check-before-enable nil)
 #+end_src
@@ -46,11 +65,13 @@
 #+end_src
 * LSP
 ** General
+Use nix
 #+begin_src emacs-lisp
 (after! lsp-mode
   (advice-remove #'lsp #'+lsp-dont-prompt-to-install-servers-maybe-a))
 #+end_src
 ** Haskell
+Performance issues?
 #+begin_src emacs-lisp
 (after! haskell
   (setq lsp-haskell-check-project nil
@@ -58,13 +79,15 @@
         lsp-haskell-max-completions 20))
 #+end_src
 * WSL
-** Browser
+** TODO Browser
+- Note taken on [2023-05-14 日 02:30] \\
+  Use wslview
 #+begin_src emacs-lisp
 (when (and (eq system-type 'gnu/linux)
            (string-match
             "Linux.*Microsoft.*Linux"
             (shell-command-to-string "uname -a")))
-  (setq browse-url-generic-program "/mnt/c/Windows/System32/cmd.exe" ; TODO Use wslview
+  (setq browse-url-generic-program "/mnt/c/Windows/System32/cmd.exe"
         browse-url-generic-args    '("/c" "start")
         browse-url-browser-function #'browse-url-generic))
 #+end_src

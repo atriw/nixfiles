@@ -3,6 +3,8 @@
 
   networking.hostName = "matrix";
 
+  time.timeZone = "Asia/Shanghai";
+
   wsl = {
     enable = true;
     nativeSystemd = true;
