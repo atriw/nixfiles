@@ -10,6 +10,7 @@
       desktop = import ../modules/desktop.nix;
       wsl = import ../modules/wsl.nix;
       cn = import ../modules/cn.nix;
+      uifonts = import ../modules/uifonts.nix;
     };
   };
 }

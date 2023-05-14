@@ -95,6 +95,7 @@
     self.nixosModules.nixos
     self.nixosModules.nix-config
     self.nixosModules.cn
+    self.nixosModules.uifonts
   ];
   system = "x86_64-linux";
 in {
