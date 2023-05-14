@@ -29,7 +29,7 @@
       password = "nixos";
     };
   };
-  hmUsers = withDesktop: {...}: {
+  hmUsers = withDesktop: {config, ...}: {
     home-manager.users.atriw = {
       imports =
         [
@@ -47,6 +47,14 @@
         EDITOR = "nvim";
         SHELL = "zsh";
       };
+      # Remove collision with exa aliases
+      home.shellAliases = builtins.removeAttrs config.environment.shellAliases [
+        "ls"
+        "ll"
+        "la"
+        "lt"
+        "lla"
+      ];
       xdg.enable = true;
       programs.git.userName = "atriw";
       programs.git.userEmail = "875241499@qq.com";
