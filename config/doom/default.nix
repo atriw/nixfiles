@@ -7,12 +7,12 @@
 stdenv.mkDerivation {
   pname = "emacs-config";
   inherit version;
-  src = lib.sourceByRegex ./. ["config.org" "init.el" "packages.el"];
+  src = lib.sourceByRegex ./. [".*themes.*" "config.org" "init.el" "packages.el"];
 
   buildInputs = [emacs];
 
   buildPhase = ''
-    cp $src/* .
+    cp -r $src/* .
     # Tangle org files
     emacs --batch -Q \
       -l org \
@@ -24,5 +24,6 @@ stdenv.mkDerivation {
 
   installPhase = ''
     install -D -t $out *.el
+    cp -r $src/themes $out
   '';
 }

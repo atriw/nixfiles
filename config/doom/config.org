@@ -9,11 +9,12 @@ Optimization, See: [[https://www.gnu.org/software/emacs/manual/html_node/elisp/L
 * UI
 Some preferences
 #+begin_src emacs-lisp
-(setq doom-font (font-spec :family "FiraCode Nerd Font" :size 20)
-      doom-serif-font (font-spec :family "Source Serif Pro" :size 20)
+(setq doom-font (font-spec :family "FiraCode Nerd Font" :size 24)
+      doom-serif-font (font-spec :family "Source Serif Pro" :size 28)
       doom-big-font-increment 6)
 (push "all-the-icons" doom-symbol-fallback-font-families)
-(setq doom-theme 'doom-one)
+(setq doom-theme 'catppuccin
+      catppuccin-flavor 'frappe)
 (setq doom-modeline-height 30
       doom-modeline-bar-width 5
       doom-modeline-persp-name t
