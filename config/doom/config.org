@@ -36,9 +36,12 @@ In case doom ui not correctly rendered
 (add-hook! 'emacs-startup-hook #'doom-init-ui-h)
 #+end_src
 
-* Org
+* Notes
 #+begin_src emacs-lisp
-(setq org-directory "~/notes")
+(setq org-directory "~/notes"
+      deft-directory "~/notes"
+      org-roam-directory "~/notes/roam"
+      org-agenda-files '("~/notes" "~/notes/roam"))
 #+end_src
 
 * Editor
@@ -79,7 +82,7 @@ Performance issues?
         lsp-haskell-max-completions 20))
 #+end_src
 * WSL
-** TODO Browser
+** TODO [#C] Browser
 - Note taken on [2023-05-14 日 02:30] \\
   Use wslview
 #+begin_src emacs-lisp
@@ -90,4 +93,9 @@ Performance issues?
   (setq browse-url-generic-program "/mnt/c/Windows/System32/cmd.exe"
         browse-url-generic-args    '("/c" "start")
         browse-url-browser-function #'browse-url-generic))
+#+end_src
+* Custom
+** nov.el
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 #+end_src

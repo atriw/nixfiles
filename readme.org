@@ -23,13 +23,19 @@ An attempt to nix all my configurations using [[https://github.com/hercules-ci/f
   - ~modules~ should be copied from ~doomemacs~ repo to ~$HOME/.cache/doom/modules~
 - Search in project is not usable:
   - Upon entering minibuffer, a warning shows up:
-  #+begin_example
-[Invalide preview key according to 'key-valid-p': [67108896]]
-  #+end_example
+    #+begin_example
+  [Invalide preview key according to 'key-valid-p': [67108896]]
+    #+end_example
   - Enter some character, another warning:
     #+begin_example
 [Error running timer: (void-function consult--ripgrep-builder)]
     #+end_example
+
+- Cannot view package help
+  #+begin_example
+Error in post-command-hook (straight--transaction-finalize): (file-error "Opening output file" "Read-only file system" "/nix/store/kj77svvfwb2j24gchkaa0fajf1dzkj3a-straight-emacs-env/straight/build-28.2-cache.el")
+Quit
+  #+end_example
 
 
 *** WSL
