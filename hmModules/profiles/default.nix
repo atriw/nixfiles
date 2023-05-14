@@ -2,6 +2,7 @@
   imports = [
     ../lazyvim.nix
     ../doomemacs.nix
+    ../imperative-doomemacs.nix
     ../chat.nix
     ../lang/c.nix
     ../lang/js.nix
@@ -16,7 +17,8 @@
 
   modules = {
     lazyvim.enable = true;
-    doomemacs.enable = true;
+    doomemacs.enable = false;
+    imperative-doomemacs.enable = true;
     shell = {
       tools.enable = true;
       zsh.enable = true;

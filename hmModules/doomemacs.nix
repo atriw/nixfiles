@@ -117,7 +117,7 @@ in {
               then value.repo
               else name;
           })
-          (lib.filterAttrs (n: v: !((v ? skip) && v.skip)) pinPackages));
+        (lib.filterAttrs (n: v: !((v ? skip) && v.skip)) pinPackages));
       doomPrivateDir = pkgs.callPackage "${configDir}/doom" {};
       doomPackageDir = let
         filteredPath = builtins.path {
