@@ -12,10 +12,12 @@ An attempt to nix all my configurations using [[https://github.com/hercules-ci/f
 
 ** Issues
 *** Nix-doom-emacs
-- Any embark commands trigger a warning and silently fail:
+- [X] Any embark commands trigger a warning and silently fail:
   #+begin_example
 'embark-define-keymap' has been deprecated in Embark 0.21
   #+end_example
+  - Note taken on [2023-05-14 日 10:27] \\
+    Pin ~embark~ and ~embark-consult~ to specific versions matched by ~doomemacs~ version.
 - ~user-emacs-directory~ set to ~$HOME/.cache/doom~
   - ~docs~ should be copied from ~doomemacs~ repo to ~$HOME/.cache/doom/docs~
   - ~modules~ should be copied from ~doomemacs~ repo to ~$HOME/.cache/doom/modules~

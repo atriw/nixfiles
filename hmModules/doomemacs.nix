@@ -7,6 +7,20 @@
 with lib; let
   cfg = config.modules.doomemacs;
   configDir = ../config;
+
+  pinEmacsPackage = {
+    prev,
+    name,
+    owner,
+    repo,
+    rev,
+    sha256,
+  }:
+    prev.${name}.overrideAttrs (oldAttrs: {
+      src = pkgs.fetchFromGitHub {
+        inherit owner repo rev sha256;
+      };
+    });
 in {
   options = {
     modules.doomemacs = {
@@ -25,6 +39,23 @@ in {
             "-DUSE_SYSTEM_LIBVTERM=ON"
           ];
         });
+        # pin embark
+        embark = pinEmacsPackage {
+          inherit prev;
+          name = "embark";
+          owner = "oantolin";
+          repo = "embark";
+          rev = "5d0459d27aa7cf738b5af36cf862723a62bef955";
+          sha256 = "sha256-7U94GRmUA+UdqvwSBSEGSwHSpfqaaiKghqg4P4gn85c=";
+        };
+        embark-consult = pinEmacsPackage {
+          inherit prev;
+          name = "embark-consult";
+          owner = "oantolin";
+          repo = "embark";
+          rev = "5d0459d27aa7cf738b5af36cf862723a62bef955";
+          sha256 = "sha256-7U94GRmUA+UdqvwSBSEGSwHSpfqaaiKghqg4P4gn85c=";
+        };
       };
       doomPrivateDir = pkgs.callPackage "${configDir}/doom" {};
       doomPackageDir = let
