@@ -11,6 +11,7 @@
     ../lang/python.nix
     ../lang/rust.nix
     ../lang/lisp.nix
+    ../lang/sh.nix
     ../shell/tools.nix
     ../shell/zsh.nix
   ];
@@ -31,6 +32,7 @@
       python.enable = true;
       rust.enable = true;
       lisp.enable = true;
+      sh.enable = true;
     };
   };
 }

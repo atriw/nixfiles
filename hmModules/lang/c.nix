@@ -21,6 +21,7 @@ in {
       gnumake
       bear
       vscode-extensions.vadimcn.vscode-lldb
+      cmake
     ];
   };
 }

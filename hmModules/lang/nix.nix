@@ -19,6 +19,7 @@ in {
       statix
       alejandra
       deadnix
+      nixfmt
     ];
   };
 }
