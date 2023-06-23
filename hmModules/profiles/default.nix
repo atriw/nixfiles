@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   imports = [
     ../lazyvim.nix
     ../doomemacs.nix
@@ -12,6 +12,8 @@
     ../lang/rust.nix
     ../lang/lisp.nix
     ../lang/sh.nix
+    ../lang/haskell.nix
+    ../lang/zig.nix
     ../shell/tools.nix
     ../shell/zsh.nix
   ];
@@ -33,6 +35,8 @@
       rust.enable = true;
       lisp.enable = true;
       sh.enable = true;
+      haskell.enable = true;
+      zig.enable = true;
     };
   };
 }

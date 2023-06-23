@@ -48,6 +48,12 @@ In case doom ui not correctly rendered
       org-agenda-files '("~/notes" "~/notes/roam"))
 #+end_src
 
+Org Noter
+#+begin_src emacs-lisp
+(setq org-noter-notes-window-location 'vertical-split
+      org-noter-doc-split-fraction '(0.8 . 0.2))
+#+end_src
+
 * Editor
 ** Parinfer
 Disable annoying prompts
@@ -61,14 +67,7 @@ Disable annoying prompts
   (setq company-transformers '(company-sort-by-occurrence company-sort-prefer-same-case-prefix)
         company-idle-delay 0.2
         company-minimum-prefix-length 2
-        company-selection-wrap-around t)
-  (map! (:when (featurep! :completion company)
-         (:after company
-          (:map company-active-map
-                "C-SPC" #'company-complete-common-or-cycle
-                "TAB" #'company-complete-selection
-                [tab] #'company-complete-selection)))))
-
+        company-selection-wrap-around t))
 #+end_src
 * LSP
 ** General
@@ -104,6 +103,10 @@ Performance issues?
 (use-package! nov
   :mode ("\\.epub\\'" . nov-mode)
   :config
+  (add-hook 'nov-mode-hook 'visual-fill-column-mode)
   (setq nov-save-place-file (concat doom-cache-dir "nov-places")
-        nov-text-width 80))
+        nov-text-width 80
+        visual-fill-column-center-text t
+        visual-fill-column-width 40))
+
 #+end_src

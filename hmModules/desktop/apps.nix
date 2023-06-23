@@ -16,6 +16,8 @@ in {
   config = mkIf cfg.enable {
     home.packages = [
       neovide
+      foliate
+      zathura
     ];
   };
 }

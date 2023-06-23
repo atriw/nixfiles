@@ -25,7 +25,7 @@ in {
     ];
     programs.emacs = {
       enable = true;
-      package = with pkgs; ((emacsPackagesFor emacsGit).emacsWithPackages
+      package = with pkgs; ((emacsPackagesFor emacs).emacsWithPackages
         (epkgs: [epkgs.vterm]));
     };
     services.emacs.enable = true;
