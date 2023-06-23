@@ -19,6 +19,7 @@
       inherit
         (inputs'.latest.legacyPackages)
         neovim-unwrapped
+        helix
         catppuccin-gtk
         ;
     };

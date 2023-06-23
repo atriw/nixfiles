@@ -34,7 +34,7 @@ in {
     ];
     program_list = [
       "git"
-      "starship"
+      # "starship"
       "exa" # ls
       "bat" # cat
       "fzf"
@@ -48,6 +48,7 @@ in {
       "pandoc"
       "zoxide" # z
       "chat" # ChatGPT cli
+      "helix"
     ];
     configs = {
       git.delta.enable = true;
@@ -64,6 +65,15 @@ in {
         pane_frames = false;
         default_mode = "locked";
         default_layout = "compact";
+      };
+      helix.settings = {
+        theme = "catppuccin_frappe";
+        editor = {
+          lsp.display-messages = true;
+        };
+      };
+      broot.settings = {
+        verbs = [{ invocation = "edit"; shortcut = "e"; execution = "$EDITOR {file}";}];
       };
     };
   in

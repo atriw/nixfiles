@@ -34,7 +34,7 @@ in {
             home.homeDirectory = "/home/atriw";
             home.stateVersion = "22.11";
             home.sessionVariables = {
-              EDITOR = "nvim";
+              EDITOR = "hx";
               SHELL = "zsh";
             };
             programs.git.userName = "atriw";

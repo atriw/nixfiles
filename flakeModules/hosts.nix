@@ -28,6 +28,7 @@
       shell = pkgs.zsh;
       password = "nixos";
     };
+    programs.zsh.enable = true;
   };
   hmUsers = withDesktop: {config, ...}: {
     home-manager.users.atriw = {
@@ -44,7 +45,7 @@
       ];
       home.stateVersion = "22.11";
       home.sessionVariables = {
-        EDITOR = "nvim";
+        EDITOR = "hx";
         SHELL = "zsh";
       };
       # Remove collision with exa aliases
