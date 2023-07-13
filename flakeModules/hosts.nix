@@ -30,6 +30,20 @@
     };
     programs.zsh.enable = true;
   };
+  hmUsers-mini = {config, ...}: {
+    home-manager.users.atriw = {
+      imports = [../hmModules/profiles/minimal.nix];
+      nixpkgs.overlays = [self.overlays.default];
+      home.stateVersion = "22.11";
+      home.shellAliases = builtins.removeAttrs config.environment.shellAliases [
+        "ls"
+        "ll"
+        "la"
+        "lt"
+        "lla"
+      ];
+    };
+  };
   hmUsers = withDesktop: {config, ...}: {
     home-manager.users.atriw = {
       imports =
@@ -137,7 +151,7 @@ in {
         modules =
           sharedModules
           ++ [
-            (hmUsers false)
+            hmUsers-mini
             ../hosts/coco
           ];
       };
