@@ -16,10 +16,12 @@ in {
           vector
           unordered-containers
           microlens-platform
+          conduit
           foldl
           random
         ]))
       cabal-install
+      stack
       haskell-language-server
     ];
   };

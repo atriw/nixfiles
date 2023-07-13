@@ -20,6 +20,7 @@
         (inputs'.latest.legacyPackages)
         neovim-unwrapped
         helix
+        joshuto
         catppuccin-gtk
         ;
     };
