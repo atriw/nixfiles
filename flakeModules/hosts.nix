@@ -132,6 +132,15 @@ in {
             self.nixosModules.desktop
           ];
       };
+      coco = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules =
+          sharedModules
+          ++ [
+            (hmUsers false)
+            ../hosts/coco
+          ];
+      };
     };
   };
 }
