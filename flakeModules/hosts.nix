@@ -8,11 +8,13 @@
     (inputs)
     nixpkgs
     home-manager
-    nix-doom-emacs
     nixos-hardware
     nixos-wsl
-    emacs-overlay
     rust-overlay
+    # emacs-overlay
+    
+    # nix-doom-emacs
+    
     ;
   # Inline modules, move to modules later
   users = {pkgs, ...}: {
@@ -48,12 +50,12 @@
     home-manager.users.atriw = {
       imports =
         [
-          nix-doom-emacs.hmModule
+          # nix-doom-emacs.hmModule
           ../hmModules/profiles/default.nix
         ]
         ++ lib.optional withDesktop ../hmModules/profiles/desktop.nix;
       nixpkgs.overlays = [
-        emacs-overlay.overlays.default
+        # emacs-overlay.overlays.default
         rust-overlay.overlays.default
         self.overlays.default
       ];
@@ -75,7 +77,7 @@
       programs.git.userEmail = "875241499@qq.com";
     };
   };
-  wslUsers = {...}: {
+  wslUsers = {
     wsl.defaultUser = "atriw";
   };
   wslFcitx5Overlay = {
@@ -96,7 +98,7 @@
       })
     ];
   };
-  xdgAutoStart = {...}: {
+  xdgAutoStart = {
     # This option will generate systemd targets and services,
     # but not start them automaticly.
     #

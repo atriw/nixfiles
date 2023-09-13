@@ -30,9 +30,9 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
+    # emacs-overlay.url = "github:nix-community/emacs-overlay";
 
-    nix-doom-emacs.url = "github:nix-community/nix-doom-emacs";
+    # nix-doom-emacs.url = "github:nix-community/nix-doom-emacs";
   };
 
   outputs = inputs @ {flake-parts, ...}:
