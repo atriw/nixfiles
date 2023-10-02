@@ -21,7 +21,10 @@
         neovim-unwrapped
         helix
         joshuto
+        yazi
         catppuccin-gtk
+        zig
+        zls
         ;
     };
     packages.chat = pkgs.callPackage ../packages/chat {};

@@ -32,6 +32,7 @@ in {
       just # make
       xonsh
       joshuto
+      yazi
     ];
     program_list = [
       "git"
@@ -50,6 +51,7 @@ in {
       "zoxide" # z
       "chat" # ChatGPT cli
       "helix"
+      "tmux"
     ];
     configs = {
       git.delta.enable = true;
@@ -96,6 +98,31 @@ in {
           }
         ];
       };
+      tmux.terminal = "screen-256color";
+      tmux.escapeTime = 10;
+      tmux.plugins = with pkgs; [
+        tmuxPlugins.cpu
+        {
+          plugin = tmuxPlugins.resurrect;
+          extraConfig = "set -g @resurrect-strategy-nvim 'session'";
+        }
+        {
+          plugin = tmuxPlugins.continuum;
+          extraConfig = ''
+            set -g @continuum-restore 'on'
+            set -g @continuum-save-interval '60'
+          '';
+        }
+        {
+          plugin = tmuxPlugins.catppuccin;
+          extraConfig = ''
+            set -g @catppuccin_flavour 'frappe'
+          '';
+        }
+      ];
+      tmux.extraConfig = ''
+        set-option -sa terminal-features ',xterm-256color:RGB'
+      '';
     };
   in
     mkIf cfg.enable {
