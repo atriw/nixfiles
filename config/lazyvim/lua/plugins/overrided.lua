@@ -8,15 +8,6 @@ return {
     enabled = false,
   },
   {
-    "jose-elias-alvarez/null-ls.nvim",
-    opts = function(_, opts)
-      local count = #opts.sources
-      for i = 0, count do
-        opts.sources[i] = nil
-      end
-    end,
-  },
-  {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
@@ -117,23 +108,6 @@ return {
         bind_to_cwd = true,
       },
     },
-  },
-  {
-    "goolord/alpha-nvim",
-    opts = function(_, opts)
-      local dashboard = require("alpha.themes.dashboard")
-      opts.section.buttons.val = {
-        dashboard.button("p", " " .. " Open project", "<cmd>Telescope project display_type=full<cr>"),
-        dashboard.button("f", " " .. " Find file", ":Telescope find_files <CR>"),
-        dashboard.button("n", " " .. " New file", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("r", " " .. " Recent files", ":Telescope oldfiles <CR>"),
-        dashboard.button("g", " " .. " Find text", ":Telescope live_grep <CR>"),
-        dashboard.button("c", " " .. " Config", ":e $MYVIMRC | :cd %:p:h | Telescope file_browser <CR>"),
-        dashboard.button("s", " " .. " Restore Session", [[:lua require("persistence").load() <cr>]]),
-        dashboard.button("l", "󰒲 " .. " Lazy", ":Lazy<CR>"),
-        dashboard.button("q", " " .. " Quit", ":qa<CR>"),
-      }
-    end,
   },
   {
     "folke/noice.nvim",

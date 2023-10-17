@@ -11,32 +11,10 @@ return {
       },
       setup = {
         clangd = function(_, opts)
-          require("lazyvim.util").on_attach(function(client, buffer) end)
+          require("lazyvim.util").lsp.on_attach(function(client, buffer) end)
           require("clangd_extensions").setup()
           return true
         end,
-      },
-    },
-  },
-  {
-    "mfussenegger/nvim-dap",
-    opts = {
-      adapters = {
-        c_codelldb = lang.get_codelldb_adapter(),
-      },
-      configurations = {
-        c = {
-          {
-            name = "Launch file",
-            type = "c_codelldb",
-            request = "launch",
-            program = function()
-              return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-            end,
-            cwd = "${workspaceFolder}",
-            stopOnEntry = false,
-          },
-        },
       },
     },
   },

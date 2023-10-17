@@ -21,17 +21,6 @@ function M.add_lsp_config(lsp, opts)
   }
 end
 
-function M.add_null_ls_sources(get_sources_fn)
-  return {
-    "jose-elias-alvarez/null-ls.nvim",
-    opts = function(_, opts)
-      local nls = require("null-ls")
-      local sources = get_sources_fn(nls)
-      vim.list_extend(opts.sources, sources)
-    end,
-  }
-end
-
 function M.get_codelldb_adapter(extension_path)
   extension_path = extension_path or vim.g.codelldb_path
   if not extension_path then
