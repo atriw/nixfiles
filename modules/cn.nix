@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   fonts = {
-    fonts = with pkgs; [
+    packages = with pkgs; [
       noto-fonts-cjk-sans
       noto-fonts-cjk-serif
       source-han-sans

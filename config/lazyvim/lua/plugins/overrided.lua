@@ -109,17 +109,17 @@ return {
       },
     },
   },
-  {
-    "folke/noice.nvim",
-    opts = {
-      -- NOTE: noice has issues with neovide
-      -- See: https://github.com/folke/noice.nvim/issues/17
-      --      https://github.com/neovide/neovide/issues/1751
-      --      https://github.com/neovim/neovim/issues/22344
-      -- Seems like disabling messages suspends these issues
-      messages = {
-        enabled = false,
-      },
-    },
-  },
+  -- {
+  --   "folke/noice.nvim",
+  --   opts = {
+  --     -- NOTE: noice has issues with neovide
+  --     -- See: https://github.com/folke/noice.nvim/issues/17
+  --     --      https://github.com/neovide/neovide/issues/1751
+  --     --      https://github.com/neovim/neovim/issues/22344
+  --     -- Seems like disabling messages suspends these issues
+  --     messages = {
+  --       enabled = false,
+  --     },
+  --   },
+  -- },
 }

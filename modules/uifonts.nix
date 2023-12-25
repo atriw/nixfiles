@@ -6,7 +6,7 @@
 }: {
   fonts = {
     fontDir.enable = true;
-    fonts = with pkgs; [
+    packages = with pkgs; [
       noto-fonts
       inter
       source-sans-pro

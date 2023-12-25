@@ -14,12 +14,12 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     latest.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    home-manager.url = "github:nix-community/home-manager/release-23.05";
+    home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     nixos-hardware.url = "github:nixos/nixos-hardware";

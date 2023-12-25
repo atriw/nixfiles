@@ -37,7 +37,7 @@ in {
     program_list = [
       "git"
       # "starship"
-      "exa" # ls
+      "eza" # ls
       "bat" # cat
       "fzf"
       "mcfly"
@@ -58,7 +58,7 @@ in {
       git.extraConfig = {
         credential.helper = "store";
       };
-      exa.enableAliases = true;
+      eza.enableAliases = true;
       bat.config = {theme = "TwoDark";};
       fzf.defaultCommand = "rg --files --hidden --glob '!.git'";
       fzf.defaultOptions = ["--height=40%" "--layout=reverse" "--border" "--margin=1" "--padding=1"];

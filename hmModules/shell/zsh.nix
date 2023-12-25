@@ -47,7 +47,7 @@ in {
       in {
         enableAutosuggestions = true;
         enableCompletion = true;
-        enableSyntaxHighlighting = true;
+        syntaxHighlighting.enable = true;
         plugins =
           builtins.map (p: {
             name = "ohmyzsh/${p}";
